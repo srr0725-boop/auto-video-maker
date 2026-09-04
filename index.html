@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Auto 15 Sec Video Maker</title>
+<style>
+body{margin:0;background:#111;color:#fff;font-family:Arial,sans-serif}
+.wrap{max-width:620px;margin:30px auto;padding:20px}
+.card{background:#1d1d1d;border-radius:22px;padding:22px;box-shadow:0 10px 40px #0008}
+h1{margin-top:0}
+label{display:block;margin:18px 0 8px;font-weight:700}
+input[type=file],textarea{width:100%;box-sizing:border-box;border:1px solid #444;background:#101010;color:#fff;border-radius:12px;padding:13px}
+textarea{min-height:170px;resize:vertical}
+button{width:100%;padding:15px;border:0;border-radius:14px;background:#fff;color:#111;font-size:17px;font-weight:700;margin-top:18px}
+#status{margin-top:16px;white-space:pre-wrap}
+video{width:100%;margin-top:18px;border-radius:16px;background:#000}
+small{color:#aaa}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h1>🎬 Auto 15 Sec Video Maker</h1>
+<small>बस Image + Script डालें → 15 सेकंड की vertical MP4</small>
+<form id="form">
+<label>Image</label>
+<input type="file" name="image" accept="image/png,image/jpeg,image/webp" required>
+<label>Script</label>
+<textarea name="script" placeholder="यहाँ अपनी 15 सेकंड की script लिखें..." required></textarea>
+<button id="btn">Generate Video</button>
+</form>
+<div id="status"></div>
+<div id="result"></div>
+</div>
+</div>
+<script>
+const form=document.getElementById('form'), btn=document.getElementById('btn');
+form.addEventListener('submit', async e=>{
+  e.preventDefault(); btn.disabled=true; btn.textContent="⏳ Video बन रही है...";
+  document.getElementById('status').textContent="AI voice और video तैयार हो रही है...";
+  document.getElementById('result').innerHTML="";
+  try{
+    const r=await fetch('/generate',{method:'POST',body:new FormData(form)});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||"Generation failed");
+    document.getElementById('status').textContent="✅ Video तैयार है!";
+    document.getElementById('result').innerHTML=
+      `<video controls src="${data.download}"></video>
+       <a href="${data.download}" download><button>📥 Download MP4</button></a>`;
+  }catch(err){document.getElementById('status').textContent="❌ "+err.message;}
+  finally{btn.disabled=false;btn.textContent="Generate Video";}
+});
+</script>
+</body>
+</html>
